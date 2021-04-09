@@ -36,6 +36,7 @@ app.use("/register", registerRoute);
 app.get("/", middleware.requireLogin, (req, res, next) => {
 	const payload = {
 		pageTitle: "Home",
+		userLoggedIn: req.session.user,
 	};
 
 	res.status(200).render("home", payload);
