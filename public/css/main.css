@@ -1,10 +1,23 @@
 :root {
   --blue: #1fa2f1;
+  --blueLight: #9bd1f9;
   --buttonHoverBG: #d4edff;
+  --lightGrey: rgb(230, 236, 240);
+  --spacing: 15px;
+}
+
+* {
+  outline: none !important;
 }
 
 a {
   color: inherit;
+}
+
+h1 {
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0;
 }
 
 a:hover {
@@ -27,6 +40,7 @@ nav a {
   font-size: 30px;
   width: 55px;
   height: 55px;
+  color: #212529;
   /* border-radius: 50%; */
   /* transition: all 0.2s; */
 }
@@ -42,5 +56,73 @@ nav a:hover {
 }
 
 .mainSectionContainer {
-  background-color: blue;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border-left: 1px solid var(--lightGrey);
+  border-right: 1px solid var(--lightGrey);
 }
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 53px;
+  padding: 0 var(--spacing);
+  border-bottom: 1px solid var(--lightGrey);
+}
+
+.titleContainer h1 {
+  flex: 1;
+}
+
+.postFormContainer {
+  display: flex;
+  padding: var(--spacing);
+  border-bottom: 10px solid var(--lightGrey);
+  flex-shrink: 0;
+}
+
+.userImageContainer {
+  width: 50px;
+  height: 50px;
+}
+
+.userImageContainer img {
+  width: 100%;
+  border-radius: 50%;
+  background-color: #fff;
+}
+
+.textareaContainer {
+  flex: 1;
+  padding-left: var(--spacing);
+}
+
+.textareaContainer textarea {
+  width: 100%;
+  border: none;
+  resize: none;
+  font-size: 19px;
+}
+
+#submitPostButton {
+  background-color: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 40px;
+  padding: 7px 15px;
+  cursor: pointer;
+}
+
+#submitPostButton:disabled {
+  background-color: var(--blueLight);
+  cursor: inherit;
+}
+
+/* .userImageContainer 
+  img(src=userLoggedIn.profilePic, alt="User's profile picture")
+.textareaContainer
+  textarea#postTextarea(placeholder="What's happening") 
+  .buttonsContainer   
+    button#submitPostButton(disabled='') Post */
