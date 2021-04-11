@@ -4,6 +4,8 @@
   --buttonHoverBG: #d4edff;
   --lightGrey: rgb(230, 236, 240);
   --spacing: 15px;
+  --greyText: rgb(101, 119, 134);
+  --greyButtonText: rgba(0, 0, 0, 0.34)
 }
 
 * {
@@ -53,6 +55,12 @@ nav a:hover {
   background-color: var(--buttonHoverBG);
   color: var(--blue);
   border-radius: 50%;
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  color: var(--greyButtonText);
 }
 
 .mainSectionContainer {
@@ -120,9 +128,61 @@ nav a:hover {
   cursor: inherit;
 }
 
-/* .userImageContainer 
-  img(src=userLoggedIn.profilePic, alt="User's profile picture")
-.textareaContainer
-  textarea#postTextarea(placeholder="What's happening") 
-  .buttonsContainer   
-    button#submitPostButton(disabled='') Post */
+.post {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing);
+  cursor: pointer;
+  border-bottom: 1px solid var(--lightGrey);
+  flex-shrink: 0;
+}
+
+.mainContentContainer {
+  flex: 1;
+  display: flex;
+}
+
+.postContentContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-left: var(--spacing);
+}
+
+.displayName {
+  font-weight: bold;
+}
+
+.username,
+.date {
+  color: var(--greyText);
+}
+
+.postFooter {
+  display: flex;
+  align-items: center;
+}
+
+.postFooter .postButtonContainer {
+  display: flex;
+  flex: 1;
+}
+
+.postFooter .postButtonContainer button {
+  padding: 2px 5px;
+}
+
+.header a:hover {
+  text-decoration: underline;
+}
+
+.header a,
+.header span {
+  padding-right: 5px;
+}
+
+.postFooter .postButtonContainer button:hover {
+  background-color: #d4edff;
+  color: var(--blue);
+  border-radius: 50%;
+}
