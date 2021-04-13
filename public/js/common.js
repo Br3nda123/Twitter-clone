@@ -13,22 +13,22 @@ textArea.addEventListener("keyup", (e) => {
 	submitButton.removeAttribute("disabled");
 });
 
-async function posts(url, data = {}) {
-	const response = await fetch(url, {
-		method: "POST", // *GET, POST, PUT, DELETE, etc.
-		mode: "cors", // no-cors, *cors, same-origin
-		cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-		credentials: "same-origin", // include, *same-origin, omit
-		headers: {
-			"Content-Type": "application/json",
-			// 'Content-Type': 'application/x-www-form-urlencoded',
-		},
-		redirect: "follow", // manual, *follow, error
-		referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-		body: JSON.stringify(data), // body data type must match "Content-Type" header
-	});
-	return response.json();
-}
+// async function posts(url, data = {}) {
+// 	const response = await fetch(url, {
+// 		method: "POST", // *GET, POST, PUT, DELETE, etc.
+// 		mode: "cors", // no-cors, *cors, same-origin
+// 		cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+// 		credentials: "same-origin", // include, *same-origin, omit
+// 		headers: {
+// 			"Content-Type": "application/json",
+// 			// 'Content-Type': 'application/x-www-form-urlencoded',
+// 		},
+// 		redirect: "follow", // manual, *follow, error
+// 		referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+// 		body: JSON.stringify(data), // body data type must match "Content-Type" header
+// 	});
+// 	return response.json();
+// }
 
 submitButton.addEventListener("click", (e) => {
 	const button = e.target;
@@ -62,6 +62,55 @@ submitButton.addEventListener("click", (e) => {
 	});
 });
 
+function likeButtonFn(e) {
+	const button = e.target;
+	const postId = getPostIdFromElement(button);
+
+	if (postId === undefined) return;
+
+	fetch(`/api/posts/${postId}/like`, {
+		method: "PUT",
+		headers: {
+			"Content-type": "application/json", // Indicates the content
+		},
+		// body: JSON.stringify(someData),
+	})
+		.then((resp) => resp.json())
+		.then((data) => {
+			button.querySelector("span").textContent = data.likes.length || "";
+
+			if (data.likes.includes(userLoggedIn._id)) {
+				button.classList.add("active");
+			} else {
+				button.classList.remove("active");
+			}
+		})
+		.catch((err) => console.log(err));
+
+	// $.ajax({
+	// 	url: `/api/posts/${postId}/like`,
+	// 	type: "PUT",
+	// 	success: (postData) => {
+	// 		button.find("span").text(postData.likes.length || "");
+	// 	},
+	// });
+}
+
+// $(document).on("click", ".likeButton", (e) => {
+// 	const button = $(e.target);
+// 	console.log(button);
+// });
+
+const getPostIdFromElement = (element) => {
+	const isRoot = element.classList === "post";
+	const rootElement = isRoot ? element : element.closest(".post");
+	const postId = rootElement.dataset.id;
+
+	if (postId === undefined) return alert("Post id undefined");
+
+	return postId;
+};
+
 function createPostHtml(postData) {
 	const postedBy = postData.postedBy;
 
@@ -72,8 +121,13 @@ function createPostHtml(postData) {
 	const displayName = postedBy.firstName + " " + postedBy.lastName;
 	const timestamp = timeDifference(new Date(), new Date(postData.createdAt));
 
+	const likeButtonActiveClass = postData.likes.includes(userLoggedIn._id)
+		? "active"
+		: "";
+
 	const div = document.createElement("div");
 	div.className = "post";
+	div.setAttribute("data-id", postData._id);
 	div.innerHTML = `
       <div class='mainContentContainer'>
         <div class='userImageContainer'>
@@ -81,7 +135,9 @@ function createPostHtml(postData) {
         </div>
         <div class='postContentContainer'>
           <div class='header'>
-            <a href='/profile/${postedBy.username}' class="displayName">${displayName}</a>
+            <a href='/profile/${
+							postedBy.username
+						}' class="displayName">${displayName}</a>
             <span class='username'>@${postedBy.username}</span>
             <span class='date'>${timestamp}</span>
           </div>
@@ -94,14 +150,15 @@ function createPostHtml(postData) {
                 <i class="far fa-comment"></i>
               </button>
             </div>
-            <div class="postButtonContainer">
-              <button>
+            <div class="postButtonContainer green">
+              <button class="retweet ${likeButtonActiveClass}">
                 <i class="fas fa-retweet"></i>
               </button>
             </div>
-            <div class="postButtonContainer">
-              <button>
+            <div class="postButtonContainer red">
+              <button class="likeButton ${likeButtonActiveClass}" onclick="likeButtonFn(event)">
                 <i class="far fa-heart"></i>
+								<span>${postData.likes.length || ""}</span>
               </button>
             </div>
           </div>
