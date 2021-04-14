@@ -34,6 +34,7 @@ const UserSchema = new Schema(
 			default: "/images/profilePic.png",
 		},
 		likes: [{ type: Schema.Types.ObjectId, ref: "Post" }],
+		retweets: [{ type: Schema.Types.ObjectId, ref: "Post" }],
 	},
 	{ timestamps: true }
 );

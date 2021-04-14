@@ -11,8 +11,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 router.get("/", (req, res, next) => {
 	Post.find()
 		.populate("postedBy")
+		.populate("retweetData")
 		.sort({ createdAt: -1 })
-		.then((result) => res.status(200).send(result))
+		.then(async (result) => {
+			result = await User.populate(result, { path: "retweetData.postedBy" });
+			return res.status(200).send(result);
+		})
 		.catch((error) => {
 			console.log(error);
 			res.sendStatus(400);
@@ -68,6 +72,56 @@ router.put("/:id/like", async (req, res, next) => {
 	const post = await Post.findByIdAndUpdate(
 		postId,
 		{ [option]: { likes: userId } },
+		{ new: true }
+	).catch((error) => {
+		console.log(error);
+		res.sendStatus(400);
+	});
+
+	res.status(200).send(post);
+});
+
+router.post("/:id/retweet", async (req, res, next) => {
+	const postId = req.params.id;
+	const userId = req.session.user._id;
+
+	// Try and delete retweet
+	const deletedPost = await Post.findOneAndDelete({
+		postedBy: userId,
+		retweetData: postId,
+	}).catch((error) => {
+		console.log(error);
+		res.sendStatus(400);
+	});
+	console.log(deletedPost);
+
+	const option = deletedPost != null ? "$pull" : "$addToSet";
+
+	let repost = deletedPost;
+
+	if (repost == null) {
+		repost = await Post.create({ postedBy: userId, retweetData: postId }).catch(
+			(error) => {
+				console.log(error);
+				res.sendStatus(400);
+			}
+		);
+	}
+
+	// Insert user like
+	req.session.user = await User.findByIdAndUpdate(
+		userId,
+		{ [option]: { retweets: repost._id } },
+		{ new: true }
+	).catch((error) => {
+		console.log(error);
+		res.sendStatus(400);
+	});
+
+	// Insert post like
+	const post = await Post.findByIdAndUpdate(
+		postId,
+		{ [option]: { retweetUsers: userId } },
 		{ new: true }
 	).catch((error) => {
 		console.log(error);
