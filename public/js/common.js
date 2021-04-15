@@ -1,16 +1,28 @@
-const submitButton = document.querySelector("#submitPostButton");
-const textArea = document.querySelector("#postTextarea");
-textArea.addEventListener("keyup", (e) => {
-	const textbox = e.target;
-	const value = textbox.value.trim();
+const submitButtons = [
+	document.querySelector("#submitPostButton"),
+	document.querySelector("#submitReplyButton"),
+];
+const textAreas = [
+	document.querySelector("#postTextarea"),
+	document.querySelector("#replyTextarea"),
+];
+textAreas.forEach((textarea) => {
+	textarea.addEventListener("keyup", (e) => {
+		const textbox = e.target;
+		const value = textbox.value.trim();
 
-	if (submitButton.lenght == 0) return alert("No submit button found");
+		const isModal = !!(textbox.closest(".modal") === null);
+		// const isModal = textbox.parents(".modal").length == 1;
+		const submitButton = isModal ? submitButtons[0] : submitButtons[1];
 
-	if (value == "") {
-		submitButton.setAttribute("disabled", true);
-		return;
-	}
-	submitButton.removeAttribute("disabled");
+		if (submitButton.lenght == 0) return alert("No submit button found");
+
+		if (value == "") {
+			submitButton.setAttribute("disabled", true);
+			return;
+		}
+		submitButton.removeAttribute("disabled");
+	});
 });
 
 // async function posts(url, data = {}) {
@@ -30,37 +42,66 @@ textArea.addEventListener("keyup", (e) => {
 // 	return response.json();
 // }
 
-submitButton.addEventListener("click", (e) => {
-	const button = e.target;
-	const data = {
-		content: textArea.value,
-	};
+submitButtons.forEach((submit) => {
+	submit.addEventListener("click", (e) => {
+		const button = event.target;
 
-	// fetch("/api/posts", {
-	// 	method: "POST", // *GET, POST, PUT, DELETE, etc.
-	// 	//body: JSON.stringify(data), // body data type must match "Content-Type" header
-	// 	headers: {
-	// 		"Content-Type": "application/json",
-	// 	},
-	// 	body: {
-	// 		data: "aaaaaa",
-	// 		lala: "assadsadsad",
-	// 	},
-	// })
-	// 	.then((resp) => resp.json())
-	// 	.then((resp) => console.log(resp));
+		const isModal = !(button.closest(".modal") === null);
+		const textArea = isModal ? textAreas[1] : textAreas[0];
 
-	// const response = await posts("/api/posts", data);
-	// console.log(response);
+		const data = {
+			content: textArea.value,
+		};
 
-	$.post("/api/posts", data, (postData, status, xhr) => {
-		const html = createPostHtml(postData);
+		if (isModal) {
+			const id = button.dataset.id;
+			if (id == null) return alert("Button id is null");
+			data.replyTo = id;
+		}
 
-		document.querySelector(".postsContainer").prepend(html);
-		textArea.value = "";
-		button.setAttribute("disabled", true);
+		// fetch("/api/posts", {
+		// 	method: "POST", // *GET, POST, PUT, DELETE, etc.
+		// 	//body: JSON.stringify(data), // body data type must match "Content-Type" header
+		// 	headers: {
+		// 		"Content-Type": "application/json",
+		// 	},
+		// 	body: {
+		// 		data: "aaaaaa",
+		// 		lala: "assadsadsad",
+		// 	},
+		// })
+		// 	.then((resp) => resp.json())
+		// 	.then((resp) => console.log(resp));
+
+		// const response = await posts("/api/posts", data);
+		// console.log(response);
+
+		$.post("/api/posts", data, (postData, status, xhr) => {
+			if (postData.replyTo) {
+				location.reload();
+			} else {
+				const html = createPostHtml(postData);
+				document.querySelector(".postsContainer").prepend(html);
+				textArea.value = "";
+				button.setAttribute("disabled", true);
+			}
+		});
 	});
 });
+
+$("#replyModal").on("show.bs.modal", async (event) => {
+	const button = event.relatedTarget;
+	const postId = getPostIdFromElement(button);
+	submitButtons[1].dataset.id = postId;
+
+	const result = await (await fetch(`/api/posts/${postId}`)).json();
+	outputPosts(result, document.getElementById("originalPostContainer"));
+});
+
+$("#replyModal").on(
+	"hidden.bs.modal",
+	() => (document.getElementById("originalPostContainer").innerHTML = "")
+);
 
 function likeButtonFn(e) {
 	const button = e.target;
@@ -71,9 +112,8 @@ function likeButtonFn(e) {
 	fetch(`/api/posts/${postId}/like`, {
 		method: "PUT",
 		headers: {
-			"Content-type": "application/json", // Indicates the content
+			"Content-type": "application/json",
 		},
-		// body: JSON.stringify(someData),
 	})
 		.then((resp) => resp.json())
 		.then((data) => {
@@ -178,6 +218,22 @@ function createPostHtml(postData) {
 			Retweeted by <a href='/profile/${retweetedBy}'>@${retweetedBy}</a>
 		</span>`;
 	}
+
+	let replyFlag = "";
+	if (postData.replyTo) {
+		if (!postData.replyTo._id) {
+			return alert("Reply to is not populated");
+		} else if (!postData.replyTo.postedBy._id) {
+			return alert("postedBy to is not populated");
+		}
+
+		const replyToUsername = postData.replyTo.postedBy.username;
+		replyFlag = `
+		<div class='replyFlag'>
+			Replying to <a href='/profile/${replyToUsername}'>@${replyToUsername}</a>
+		</div>`;
+	}
+
 	const div = document.createElement("div");
 	div.className = "post";
 	div.setAttribute("data-id", postData._id);
@@ -197,12 +253,13 @@ function createPostHtml(postData) {
             <span class='username'>@${postedBy.username}</span>
             <span class='date'>${timestamp}</span>
           </div>
+					${replyFlag}
           <div class='postBody'>
             <span>${postData.content}</span>
           </div>
           <div class='postFooter'>
             <div class="postButtonContainer">
-              <button>
+              <button type="button" data-toggle="modal" data-target="#replyModal">
                 <i class="far fa-comment"></i>
               </button>
             </div>
@@ -264,3 +321,17 @@ function timeDifference(current, previous) {
 
 // 	submitButton.prop("disabled", false);
 // });
+
+function outputPosts(results, container) {
+	container.innerHTML = "";
+	if (!Array.isArray(results)) results = [results];
+
+	results.forEach((result) => {
+		const html = createPostHtml(result);
+		container.appendChild(html);
+	});
+
+	if (results.length == 0) {
+		container.appendChild("<span class='noResult'>Nothing to show.</span>");
+	}
+}
