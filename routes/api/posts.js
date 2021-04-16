@@ -16,7 +16,17 @@ router.get("/", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
 	const postId = req.params.id;
 
-	const result = (await getPosts({ _id: postId }))[0];
+	const postData = (await getPosts({ _id: postId }))[0];
+
+	const result = {
+		postData,
+	};
+
+	if (postData.replyTo !== undefined) {
+		result.replyTo = postData.replyTo;
+	}
+
+	result.replies = await getPosts({ replyTo: postId });
 
 	return res.status(200).send(result);
 });
@@ -142,7 +152,8 @@ async function getPosts(filter) {
 		.catch((error) => console.log(error));
 
 	result = await User.populate(result, { path: "replyTo.postedBy" });
-	return await User.populate(result, { path: "retweetData.postedBy" });
+	result = await User.populate(result, { path: "retweetData.postedBy" });
+	return result;
 }
 
 module.exports = router;
