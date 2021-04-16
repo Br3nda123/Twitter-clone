@@ -7,6 +7,7 @@ const textAreas = [
 	document.querySelector("#replyTextarea"),
 ];
 textAreas.forEach((textarea) => {
+	if (textarea == null) return;
 	textarea.addEventListener("keyup", (e) => {
 		const textbox = e.target;
 		const value = textbox.value.trim();
@@ -43,6 +44,7 @@ textAreas.forEach((textarea) => {
 // }
 
 submitButtons.forEach((submit) => {
+	if (submit == null) return;
 	submit.addEventListener("click", (e) => {
 		const button = event.target;
 
@@ -95,7 +97,10 @@ $("#replyModal").on("show.bs.modal", async (event) => {
 	submitButtons[1].dataset.id = postId;
 
 	const result = await (await fetch(`/api/posts/${postId}`)).json();
-	outputPosts(result, document.getElementById("originalPostContainer"));
+	outputPosts(
+		result.postData,
+		document.getElementById("originalPostContainer")
+	);
 });
 
 $("#replyModal").on(
@@ -175,6 +180,15 @@ function retweetButtonFn(e) {
 	// });
 }
 
+function postButton(e) {
+	const element = e.target;
+	const postId = getPostIdFromElement(element);
+
+	if (postId !== undefined && element.tagName.toLowerCase() !== "button") {
+		window.location.href = `/post/${postId}`;
+	}
+}
+
 const getPostIdFromElement = (element) => {
 	const isRoot = element.classList === "post";
 	const rootElement = isRoot ? element : element.closest(".post");
@@ -185,7 +199,7 @@ const getPostIdFromElement = (element) => {
 	return postId;
 };
 
-function createPostHtml(postData) {
+function createPostHtml(postData, largeFont = false) {
 	if (postData == null) return alert("Post object is null");
 
 	const isRetweet = postData.retweetData != undefined;
@@ -209,6 +223,7 @@ function createPostHtml(postData) {
 	)
 		? "active"
 		: "";
+	const largeFontClass = largeFont ? "largeFont" : "";
 
 	let retweetText = "";
 	if (isRetweet) {
@@ -220,7 +235,7 @@ function createPostHtml(postData) {
 	}
 
 	let replyFlag = "";
-	if (postData.replyTo) {
+	if (postData.replyTo && postData.replyTo._id) {
 		if (!postData.replyTo._id) {
 			return alert("Reply to is not populated");
 		} else if (!postData.replyTo.postedBy._id) {
@@ -235,7 +250,8 @@ function createPostHtml(postData) {
 	}
 
 	const div = document.createElement("div");
-	div.className = "post";
+	div.className = `post ${largeFontClass}`;
+	div.setAttribute("onclick", "postButton(event)");
 	div.setAttribute("data-id", postData._id);
 	div.innerHTML = `
 			<div class='postActionContainer'>
@@ -334,4 +350,21 @@ function outputPosts(results, container) {
 	if (results.length == 0) {
 		container.appendChild("<span class='noResult'>Nothing to show.</span>");
 	}
+}
+
+function outputPostsWithReplies(results, container) {
+	container.innerHTML = "";
+
+	if (results.replyTo !== undefined && results.replyTo._id !== undefined) {
+		const html = createPostHtml(results.replyTo);
+		container.appendChild(html);
+	}
+
+	const mainPostHtml = createPostHtml(results.postData, true);
+	container.appendChild(mainPostHtml);
+
+	results.replies.forEach((result) => {
+		const html = createPostHtml(result);
+		container.appendChild(html);
+	});
 }
