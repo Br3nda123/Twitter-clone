@@ -365,7 +365,7 @@ function outputPosts(results, container) {
 	});
 
 	if (results.length == 0) {
-		container.appendChild("<span class='noResult'>Nothing to show.</span>");
+		container.innerHTML = "<span class='noResult'>Nothing to show.</span>";
 	}
 }
 
