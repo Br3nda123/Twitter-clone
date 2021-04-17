@@ -108,6 +108,26 @@ $("#replyModal").on(
 	() => (document.getElementById("originalPostContainer").innerHTML = "")
 );
 
+$("#deletePostModal").on("show.bs.modal", async (event) => {
+	const button = event.relatedTarget;
+	const postId = getPostIdFromElement(button);
+	$("#deletePostButton").data("id", postId);
+	// document.getElementById("deletePostButton").dataset.id = postId;
+});
+
+$("#deletePostButton").click(function () {
+	const postId = $(this).data("id");
+	// const id = this.dataset.id;
+	$.ajax({
+		url: `/api/posts/${postId}`,
+		type: "DELETE",
+		success: (data, status, xhr) => {
+			if (xhr.status != 202) alert("could not delete the post");
+			location.reload();
+		},
+	});
+});
+
 function likeButtonFn(e) {
 	const button = e.target;
 	const postId = getPostIdFromElement(button);
@@ -155,9 +175,8 @@ function retweetButtonFn(e) {
 	fetch(`/api/posts/${postId}/retweet`, {
 		method: "POST",
 		headers: {
-			"Content-type": "application/json", // Indicates the content
+			"Content-type": "application/json",
 		},
-		// body: JSON.stringify(someData),
 	})
 		.then((resp) => resp.json())
 		// .then((resp) => resp.text())
@@ -170,14 +189,6 @@ function retweetButtonFn(e) {
 			}
 		})
 		.catch((err) => console.log(err));
-
-	// $.ajax({
-	// 	url: `/api/posts/${postId}/retweet`,
-	// 	type: "POST",
-	// 	success: (postData) => {
-	// 		button.find("span").text(postData.likes.length || "");
-	// 	},
-	// });
 }
 
 function postButton(e) {
@@ -249,6 +260,11 @@ function createPostHtml(postData, largeFont = false) {
 		</div>`;
 	}
 
+	let deleteButton = "";
+	if (postData.postedBy._id == userLoggedIn._id) {
+		deleteButton = `<button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`;
+	}
+
 	const div = document.createElement("div");
 	div.className = `post ${largeFontClass}`;
 	div.setAttribute("onclick", "postButton(event)");
@@ -268,6 +284,7 @@ function createPostHtml(postData, largeFont = false) {
 						}' class="displayName">${displayName}</a>
             <span class='username'>@${postedBy.username}</span>
             <span class='date'>${timestamp}</span>
+						${deleteButton}
           </div>
 					${replyFlag}
           <div class='postBody'>
