@@ -151,20 +151,7 @@ function likeButtonFn(e) {
 			}
 		})
 		.catch((err) => console.log(err));
-
-	// $.ajax({
-	// 	url: `/api/posts/${postId}/like`,
-	// 	type: "PUT",
-	// 	success: (postData) => {
-	// 		button.find("span").text(postData.likes.length || "");
-	// 	},
-	// });
 }
-
-// $(document).on("click", ".likeButton", (e) => {
-// 	const button = $(e.target);
-// 	console.log(button);
-// });
 
 function retweetButtonFn(e) {
 	const button = e.target;
@@ -199,6 +186,45 @@ function postButton(e) {
 		window.location.href = `/post/${postId}`;
 	}
 }
+
+$(document).on("click", ".followButton", (event) => {
+	const button = $(event.target);
+	const userId = button.data().user;
+
+	$.ajax({
+		url: `/api/users/${userId}/follow`,
+		type: "PUT",
+		success: (data, status, xhr) => {
+			if (xhr.status == 404) return alert("user not found");
+
+			let difference = 1;
+			if (data.following && data.following.includes(userId)) {
+				button.addClass("following");
+				button.text("Following");
+			} else {
+				button.removeClass("following");
+				button.text("Follow");
+				difference = -1;
+			}
+
+			const followersLabel = $("#followersValue");
+
+			if (followersLabel.length != 0) {
+				let followersText = followersLabel.text();
+				followersText = parseInt(followersText);
+				followersLabel.text(followersText + difference);
+			}
+			// button.find("span").text(postData.likes.length || "");
+		},
+	});
+});
+// const followButton = document.querySelector(".followButton");
+// followButton ? followButtonFn(event) : null;
+// function followButtonFn(event) {
+// 	followButton.addEventListener("click", (event) => {
+// 		console.log("hi");
+// 	});
+// }
 
 const getPostIdFromElement = (element) => {
 	const isRoot = element.classList === "post";
