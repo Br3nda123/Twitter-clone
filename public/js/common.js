@@ -6,6 +6,8 @@ const textAreas = [
 	document.querySelector("#postTextarea"),
 	document.querySelector("#replyTextarea"),
 ];
+let cropper;
+
 textAreas.forEach((textarea) => {
 	if (textarea == null) return;
 	textarea.addEventListener("keyup", (e) => {
@@ -125,6 +127,108 @@ $("#deletePostButton").click(function () {
 			if (xhr.status != 202) alert("could not delete the post");
 			location.reload();
 		},
+	});
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+	const filePhoto = document.getElementById("filePhoto");
+	if (filePhoto == null) return;
+
+	filePhoto.addEventListener("change", (event) => {
+		const input = event.target;
+
+		if (input.files && input.files[0]) {
+			const reader = new FileReader();
+			reader.addEventListener("load", (e) => {
+				const imgPrev = document.getElementById("imagePreview");
+				imgPrev.src = e.target.result;
+
+				if (cropper !== undefined) {
+					cropper.destroy();
+				}
+
+				cropper = new Cropper(imgPrev, {
+					aspectRatio: 1 / 1,
+					background: false,
+				});
+			});
+			reader.readAsDataURL(input.files[0]);
+		}
+	});
+});
+
+$("#coverPhoto").change(function () {
+	if (this.files && this.files[0]) {
+		const reader = new FileReader();
+		console.log(reader);
+		reader.onload = (e) => {
+			const imgPrev = document.getElementById("coverPreview");
+			imgPrev.src = e.target.result;
+
+			if (cropper !== undefined) {
+				cropper.destroy();
+			}
+
+			cropper = new Cropper(imgPrev, {
+				background: false,
+			});
+		};
+		reader.readAsDataURL(this.files[0]);
+	}
+});
+
+$("#imageUploadButton").click(() => {
+	const canvas = cropper.getCroppedCanvas();
+	if (canvas == null) {
+		return alert("Could not upload image. Make sure it is an image file.");
+	}
+
+	canvas.toBlob((blob) => {
+		const formData = new FormData();
+		formData.append("croppedImage", blob);
+
+		// $.ajax("/api/users/profilePicture", {
+		// 	method: "POST",
+		// 	data: formData,
+		// 	processData: false,
+		// 	contentType: false,
+		// 	success() {
+		// 		location.reload();
+		// 	},
+		// 	error() {
+		// 		console.log("Upload error");
+		// 	},
+		// });
+
+		$.ajax({
+			url: "/api/users/profilePicture",
+			type: "POST",
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: () => location.reload(),
+		});
+	});
+});
+
+$("#coverPhotoUploadButton").click(() => {
+	const canvas = cropper.getCroppedCanvas();
+	if (canvas == null) {
+		return alert("Could not upload image. Make sure it is an image file.");
+	}
+
+	canvas.toBlob((blob) => {
+		const formData = new FormData();
+		formData.append("croppedImage", blob);
+
+		$.ajax({
+			url: "/api/users/coverPhoto",
+			type: "POST",
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: () => location.reload(),
+		});
 	});
 });
 

@@ -2,6 +2,10 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const bodyParser = require("body-parser");
+const path = require("path");
+const multer = require("multer");
+const fs = require("fs");
+const upload = multer({ dest: "uploads/" });
 
 const User = require("../../schemas/UserSchema");
 const Post = require("../../schemas/PostSchema");
@@ -60,6 +64,60 @@ router.get("/:userId/followers", (req, res, next) => {
 			console.log(error);
 			res.sendStatus(400);
 		});
+});
+
+router.post(
+	"/profilePicture",
+	upload.single("croppedImage"),
+	(req, res, next) => {
+		if (!req.file) {
+			console.log("No file uploaded with ajax request");
+			return res.sendStatus(400);
+		}
+
+		const filePath = `/uploads/images/${req.file.filename}.png`;
+		const tempPath = req.file.path;
+		const targetPath = path.join(__dirname, `../../${filePath}`);
+
+		fs.rename(tempPath, targetPath, async (error) => {
+			if (error != null) {
+				console.log(error);
+				return res.sendStatus(400);
+			}
+
+			req.session.user = await User.findByIdAndUpdate(
+				req.session.user._id,
+				{ profilePic: filePath },
+				{ new: true }
+			);
+			res.sendStatus(204);
+		});
+	}
+);
+
+router.post("/coverPhoto", upload.single("croppedImage"), (req, res, next) => {
+	if (!req.file) {
+		console.log("No file uploaded with ajax request");
+		return res.sendStatus(400);
+	}
+
+	const filePath = `/uploads/images/${req.file.filename}.png`;
+	const tempPath = req.file.path;
+	const targetPath = path.join(__dirname, `../../${filePath}`);
+
+	fs.rename(tempPath, targetPath, async (error) => {
+		if (error != null) {
+			console.log(error);
+			return res.sendStatus(400);
+		}
+
+		req.session.user = await User.findByIdAndUpdate(
+			req.session.user._id,
+			{ coverPhoto: filePath },
+			{ new: true }
+		);
+		res.sendStatus(204);
+	});
 });
 
 module.exports = router;
