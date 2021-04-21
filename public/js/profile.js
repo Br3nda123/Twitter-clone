@@ -1,12 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
 	if (selectedTab === "replies") {
-		loadPosts("true");
+		loadPosts(true);
 	} else {
-		loadPosts("false");
+		loadPosts(false);
 	}
 });
 
 const postsContainer = document.querySelector(".postsContainer");
+const pinnedPostContainer = document.querySelector(".pinnedPostContainer");
+console.log(pinnedPostContainer);
 // $(document).ready(() => {
 // 	loadPosts();
 // });
@@ -17,6 +19,19 @@ const postsContainer = document.querySelector(".postsContainer");
 // 	});
 // }
 async function loadPosts(flag) {
+	if (flag == false) {
+		const pinnedResults = await (
+			await fetch(
+				"/api/posts?" +
+					new URLSearchParams({
+						postedBy: profileUserId,
+						pinned: true,
+					})
+			)
+		).json();
+		outputPinnedPost(pinnedResults, pinnedPostContainer);
+	}
+
 	const results = await (
 		await fetch(
 			"/api/posts?" +
@@ -31,4 +46,20 @@ async function loadPosts(flag) {
 	// });
 	// outputPosts(filteredResultsByUser, postsContainer);
 	outputPosts(results, postsContainer);
+}
+
+function outputPinnedPost(results, container) {
+	console.log(results);
+	if (results.length == 0) {
+		// container.style.display = "none";
+		container.style.visibility = "hidden";
+		// container.hide();
+		return;
+	}
+	container.innerHTML = "";
+
+	results.forEach((result) => {
+		const html = createPostHtml(result);
+		container.appendChild(html);
+	});
 }

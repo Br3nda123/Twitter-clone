@@ -117,6 +117,20 @@ $("#deletePostModal").on("show.bs.modal", async (event) => {
 	// document.getElementById("deletePostButton").dataset.id = postId;
 });
 
+$("#confirmPinModal").on("show.bs.modal", async (event) => {
+	const button = event.relatedTarget;
+	const postId = getPostIdFromElement(button);
+	$("#pinPostButton").data("id", postId);
+	// document.getElementById("deletePostButton").dataset.id = postId;
+});
+
+$("#unpinModal").on("show.bs.modal", async (event) => {
+	const button = event.relatedTarget;
+	const postId = getPostIdFromElement(button);
+	$("#unpinPostButton").data("id", postId);
+	// document.getElementById("deletePostButton").dataset.id = postId;
+});
+
 $("#deletePostButton").click(function () {
 	const postId = $(this).data("id");
 	// const id = this.dataset.id;
@@ -125,6 +139,34 @@ $("#deletePostButton").click(function () {
 		type: "DELETE",
 		success: (data, status, xhr) => {
 			if (xhr.status != 202) alert("could not delete the post");
+			location.reload();
+		},
+	});
+});
+
+$("#pinPostButton").click(function () {
+	const postId = $(this).data("id");
+	// const id = this.dataset.id;
+	$.ajax({
+		url: `/api/posts/${postId}`,
+		type: "PUT",
+		data: { pinned: true },
+		success: (data, status, xhr) => {
+			if (xhr.status != 204) alert("could not delete the post");
+			location.reload();
+		},
+	});
+});
+
+$("#unpinPostButton").click(function () {
+	const postId = $(this).data("id");
+	// const id = this.dataset.id;
+	$.ajax({
+		url: `/api/posts/${postId}`,
+		type: "PUT",
+		data: { pinned: false },
+		success: (data, status, xhr) => {
+			if (xhr.status != 204) alert("could not delete the post");
 			location.reload();
 		},
 	});
@@ -390,9 +432,24 @@ function createPostHtml(postData, largeFont = false) {
 		</div>`;
 	}
 
-	let deleteButton = "";
+	let buttons = "";
+	let pinnedPostText = "";
+
 	if (postData.postedBy._id == userLoggedIn._id) {
-		deleteButton = `<button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`;
+		let pinnedClass = "";
+		let dataTarget = "#confirmPinModal";
+
+		if (postData.pinned === true) {
+			pinnedClass = "active";
+			dataTarget = "#unpinModal";
+
+			pinnedPostText =
+				"<i class='fas fa-thumbtack'></i> <span>Pinned post</span>";
+		}
+
+		buttons = `
+		<button class='pinButton ${pinnedClass}' data-id="${postData._id}" data-toggle="modal" data-target="${dataTarget}"><i class='fas fa-thumbtack'></i></button>
+		<button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`;
 	}
 
 	const div = document.createElement("div");
@@ -408,13 +465,14 @@ function createPostHtml(postData, largeFont = false) {
           <img src='${postedBy.profilePic}'>
         </div>
         <div class='postContentContainer'>
+					<div class='pinnedPostText'>${pinnedPostText}</div>
           <div class='header'>
             <a href='/profile/${
 							postedBy.username
 						}' class="displayName">${displayName}</a>
             <span class='username'>@${postedBy.username}</span>
             <span class='date'>${timestamp}</span>
-						${deleteButton}
+						${buttons}
           </div>
 					${replyFlag}
           <div class='postBody'>
