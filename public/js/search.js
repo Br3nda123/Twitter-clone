@@ -1,8 +1,6 @@
 const searchBox = document.querySelector("#searchBox");
 const searchResultContainer = document.querySelector(".resultsContainer");
 
-let timer;
-
 searchBox.addEventListener("keyup", (event) => {
 	clearTimeout(timer);
 

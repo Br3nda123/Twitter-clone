@@ -446,3 +446,115 @@ button span {
   border: none;
   color: var(--greyText);
 }
+
+.chatPageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chatTitle {
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  border-bottom: 1px solid var(--lightGrey);
+  padding: 10px;
+}
+
+.chatTitle label {
+  margin: 0 10px 0 0;
+}
+
+#userSearchTextbox {
+  border: none;
+  flex: 1;
+  font-weight: 200;
+  min-width: 350px;
+}
+
+#createChatButton {
+  border: none;
+  background-color: var(--blue);
+  color: #fff;
+  padding: 7px 20px;
+  margin: 10px auto;
+  border-radius: 40px;
+}
+
+#createChatButton:disabled {
+  background-color: var(--lightGrey);
+  color: var(--greyText);
+}
+
+.selectedUser {
+  display: inline-block;
+  font-weight: 300;
+  background-color: #CBE5FE;
+  color: #0084FF;
+  padding: 5px;
+  border-radius: 3px;
+  margin: 5px 5px 0 0;
+}
+
+.resultListItem {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 7px;
+  border-bottom: 1px solid var(--lightGrey);
+}
+
+.resultListItem:hover {
+  background-color: #f2f2f2;
+}
+
+.resultsDetailtContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.resultsDetailtContainer .heading {
+  font-weight: 500;
+}
+
+.resultsDetailtContainer .subText {
+  color: var(--greyText);
+  font-size: 14px;
+}
+
+.resultListItem img {
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+}
+
+.resultsImageContainer {
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 40px;
+  width: 40px;
+  margin-right: 10px;
+  padding: 5px;
+}
+
+.groupChatImage img {
+  position: absolute;
+  bottom: 0;
+  height: 65%;
+  width: 65%;
+  margin: 0;
+  border: 2px solid #fff;
+}
+
+.groupChatImage img:first-of-type {
+  top: 0;
+  right: 0;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
