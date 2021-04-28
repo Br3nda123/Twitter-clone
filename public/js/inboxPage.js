@@ -22,7 +22,7 @@ function outputChatList(chatList, container) {
 function createChatHtml(chatData) {
 	const chatName = getChatName(chatData);
 	const image = getChatImageElements(chatData);
-	const latestMessage = "This is the latest message";
+	const latestMessage = getLatestMessage(chatData.latestMessage);
 
 	const a = document.createElement("a");
 	a.classList.add("resultListItem");
@@ -37,26 +37,13 @@ function createChatHtml(chatData) {
 	return a;
 }
 
-function getChatName(chatData) {
-	let chatName = chatData.chatName;
-
-	if (!chatName) {
-		const otherChatUsers = getOtherChatUsers(chatData.users);
-
-		const namesArray = otherChatUsers.map(
-			(user) => user.firstName + " " + user.lastName
-		);
-
-		chatName = namesArray.join(", ");
+function getLatestMessage(latestMessage) {
+	if (latestMessage != null) {
+		const sender = latestMessage.sender;
+		return `${sender.firstName} ${sender.lastName}: ${latestMessage.content}`;
 	}
 
-	return chatName;
-}
-
-function getOtherChatUsers(users) {
-	if (users.length == 1) return users;
-
-	return users.filter((user) => user._id != userLoggedIn._id);
+	return "New chat";
 }
 
 function getChatImageElements(chatData) {
