@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const postsContainer = document.querySelector(".postsContainer");
 const pinnedPostContainer = document.querySelector(".pinnedPostContainer");
-console.log(pinnedPostContainer);
 // $(document).ready(() => {
 // 	loadPosts();
 // });
@@ -49,7 +48,6 @@ async function loadPosts(flag) {
 }
 
 function outputPinnedPost(results, container) {
-	console.log(results);
 	if (results.length == 0) {
 		// container.style.display = "none";
 		container.style.visibility = "hidden";
