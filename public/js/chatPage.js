@@ -32,10 +32,6 @@ $(document).ready(() => {
 
 		$(".loadingSpinnerContainer").remove();
 		$(".chatContainer").css("visibility", "visible");
-
-		// messages.forEach((message) => {
-		// 	addMessageHtmlToPage(message);
-		// });
 	});
 });
 
@@ -57,8 +53,6 @@ $("#chatNameButton").click(() => {
 });
 
 function addMessageHtmlToPage(html) {
-	// document.querySelector(".chatMessages").appendChild(html);
-
 	document.querySelector(".chatMessages").innerHTML += html;
 }
 
@@ -146,19 +140,6 @@ function createMessageHtml(message, nextMessage, lastSenderId) {
 		`;
 	}
 
-	// const listItem = document.createElement("li");
-
-	// listItem.classList.add("message", `${liClassName}`);
-	// listItem.innerHTML = `
-	// <div class='messageContainer'>
-	// 	<span class='messageBody'>
-	// 		${message.content}
-	// 	</span>
-	// </div>
-	// `;
-
-	// return listItem;
-
 	return `<li class='message ${liClassName}'>
 	${imgContainer}
 	<div class='messageContainer'>
@@ -175,7 +156,6 @@ function scrollToBottom(animated) {
 	const scrollHeight = chatContainer[0].scrollHeight;
 	if (animated) {
 		chatContainer.animate({ scrollTop: scrollHeight }, "slow");
-		// chatContainer.getAnimations({ scrollTop: scrollHeight });
 	} else {
 		chatContainer.scrollTop(scrollHeight);
 	}

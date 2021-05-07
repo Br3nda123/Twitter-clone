@@ -17,9 +17,6 @@ searchBox.addEventListener("keyup", (event) => {
 			search(value, searchType);
 		}
 	}, 1000);
-
-	// console.log(textBoxValue);
-	// console.log(searchType);
 });
 
 function search(searchTerm, searchType) {

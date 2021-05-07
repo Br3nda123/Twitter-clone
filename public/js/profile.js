@@ -8,15 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const postsContainer = document.querySelector(".postsContainer");
 const pinnedPostContainer = document.querySelector(".pinnedPostContainer");
-// $(document).ready(() => {
-// 	loadPosts();
-// });
-// function loadPosts() {
-// 	$.get("/api/posts", { postedBy: profileUserId, isReply: false }, (result) => {
-// 		outputPosts(result, postsContainer);
-// 		// console.log($(".postsContainer"));
-// 	});
-// }
 async function loadPosts(flag) {
 	if (flag == false) {
 		const pinnedResults = await (
@@ -40,18 +31,12 @@ async function loadPosts(flag) {
 				})
 		)
 	).json();
-	// const filteredResultsByUser = results.filter((result) => {
-	// 	return result.postedBy._id == profileUserId;
-	// });
-	// outputPosts(filteredResultsByUser, postsContainer);
 	outputPosts(results, postsContainer);
 }
 
 function outputPinnedPost(results, container) {
 	if (results.length == 0) {
-		// container.style.display = "none";
 		container.style.visibility = "hidden";
-		// container.hide();
 		return;
 	}
 	container.innerHTML = "";

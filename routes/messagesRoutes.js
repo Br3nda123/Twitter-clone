@@ -37,7 +37,6 @@ router.get("/:chatId", async (req, res, next) => {
 	}).populate("users");
 
 	if (chat == null) {
-		// Check if chatId is really user Id
 		const userFound = await User.findById(chatId);
 
 		if (userFound != null) {

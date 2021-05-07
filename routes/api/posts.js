@@ -108,11 +108,6 @@ router.put("/:id/like", async (req, res, next) => {
 		req.session.user.likes && req.session.user.likes.includes(postId);
 
 	const option = isLiked ? "$pull" : "$addToSet";
-	// Wrócic do tego!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// likes: likes.push(postId);
-	// likes: likes.findIndex(postId).remove();
-
-	// Insert user like
 	req.session.user = await User.findByIdAndUpdate(
 		userId,
 		{ [option]: { likes: postId } },
@@ -122,7 +117,7 @@ router.put("/:id/like", async (req, res, next) => {
 		res.sendStatus(400);
 	});
 
-	// Insert post like
+
 	const post = await Post.findByIdAndUpdate(
 		postId,
 		{ [option]: { likes: userId } },
@@ -148,7 +143,6 @@ router.post("/:id/retweet", async (req, res, next) => {
 	const postId = req.params.id;
 	const userId = req.session.user._id;
 
-	// Try and delete retweet
 	const deletedPost = await Post.findOneAndDelete({
 		postedBy: userId,
 		retweetData: postId,
@@ -170,7 +164,6 @@ router.post("/:id/retweet", async (req, res, next) => {
 		);
 	}
 
-	// Insert user like
 	req.session.user = await User.findByIdAndUpdate(
 		userId,
 		{ [option]: { retweets: repost._id } },
@@ -180,7 +173,6 @@ router.post("/:id/retweet", async (req, res, next) => {
 		res.sendStatus(400);
 	});
 
-	// Insert post like
 	const post = await Post.findByIdAndUpdate(
 		postId,
 		{ [option]: { retweetUsers: userId } },

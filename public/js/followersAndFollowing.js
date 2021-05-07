@@ -12,13 +12,5 @@ async function loadFollow(follow) {
 	const results = await (
 		await fetch(`/api/users/${profileUserId}/${follow}`)
 	).json();
-
-	// await fetch(
-	//   "/api/posts?" +
-	//     new URLSearchParams({
-	//       postedBy: profileUserId,
-	//       isReply: flag,
-	//     })
-	// )
 	outputUsers(results[follow], resultsContainer);
 }

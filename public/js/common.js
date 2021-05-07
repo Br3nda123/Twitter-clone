@@ -22,7 +22,6 @@ textAreas.forEach((textarea) => {
 		const value = textbox.value.trim();
 
 		const isModal = !!(textbox.closest(".modal") === null);
-		// const isModal = textbox.parents(".modal").length == 1;
 		const submitButton = isModal ? submitButtons[0] : submitButtons[1];
 
 		if (submitButton.lenght == 0) return alert("No submit button found");
@@ -34,23 +33,6 @@ textAreas.forEach((textarea) => {
 		submitButton.removeAttribute("disabled");
 	});
 });
-
-// async function posts(url, data = {}) {
-// 	const response = await fetch(url, {
-// 		method: "POST", // *GET, POST, PUT, DELETE, etc.
-// 		mode: "cors", // no-cors, *cors, same-origin
-// 		cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-// 		credentials: "same-origin", // include, *same-origin, omit
-// 		headers: {
-// 			"Content-Type": "application/json",
-// 			// 'Content-Type': 'application/x-www-form-urlencoded',
-// 		},
-// 		redirect: "follow", // manual, *follow, error
-// 		referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-// 		body: JSON.stringify(data), // body data type must match "Content-Type" header
-// 	});
-// 	return response.json();
-// }
 
 submitButtons.forEach((submit) => {
 	if (submit == null) return;
@@ -69,23 +51,6 @@ submitButtons.forEach((submit) => {
 			if (id == null) return alert("Button id is null");
 			data.replyTo = id;
 		}
-
-		// fetch("/api/posts", {
-		// 	method: "POST", // *GET, POST, PUT, DELETE, etc.
-		// 	//body: JSON.stringify(data), // body data type must match "Content-Type" header
-		// 	headers: {
-		// 		"Content-Type": "application/json",
-		// 	},
-		// 	body: {
-		// 		data: "aaaaaa",
-		// 		lala: "assadsadsad",
-		// 	},
-		// })
-		// 	.then((resp) => resp.json())
-		// 	.then((resp) => console.log(resp));
-
-		// const response = await posts("/api/posts", data);
-		// console.log(response);
 
 		$.post("/api/posts", data, (postData, status, xhr) => {
 			if (postData.replyTo) {
@@ -122,26 +87,22 @@ $("#deletePostModal").on("show.bs.modal", async (event) => {
 	const button = event.relatedTarget;
 	const postId = getPostIdFromElement(button);
 	$("#deletePostButton").data("id", postId);
-	// document.getElementById("deletePostButton").dataset.id = postId;
 });
 
 $("#confirmPinModal").on("show.bs.modal", async (event) => {
 	const button = event.relatedTarget;
 	const postId = getPostIdFromElement(button);
 	$("#pinPostButton").data("id", postId);
-	// document.getElementById("deletePostButton").dataset.id = postId;
 });
 
 $("#unpinModal").on("show.bs.modal", async (event) => {
 	const button = event.relatedTarget;
 	const postId = getPostIdFromElement(button);
 	$("#unpinPostButton").data("id", postId);
-	// document.getElementById("deletePostButton").dataset.id = postId;
 });
 
 $("#deletePostButton").click(function () {
 	const postId = $(this).data("id");
-	// const id = this.dataset.id;
 	$.ajax({
 		url: `/api/posts/${postId}`,
 		type: "DELETE",
@@ -154,7 +115,6 @@ $("#deletePostButton").click(function () {
 
 $("#pinPostButton").click(function () {
 	const postId = $(this).data("id");
-	// const id = this.dataset.id;
 	$.ajax({
 		url: `/api/posts/${postId}`,
 		type: "PUT",
@@ -168,7 +128,6 @@ $("#pinPostButton").click(function () {
 
 $("#unpinPostButton").click(function () {
 	const postId = $(this).data("id");
-	// const id = this.dataset.id;
 	$.ajax({
 		url: `/api/posts/${postId}`,
 		type: "PUT",
@@ -237,19 +196,6 @@ $("#imageUploadButton").click(() => {
 		const formData = new FormData();
 		formData.append("croppedImage", blob);
 
-		// $.ajax("/api/users/profilePicture", {
-		// 	method: "POST",
-		// 	data: formData,
-		// 	processData: false,
-		// 	contentType: false,
-		// 	success() {
-		// 		location.reload();
-		// 	},
-		// 	error() {
-		// 		console.log("Upload error");
-		// 	},
-		// });
-
 		$.ajax({
 			url: "/api/users/profilePicture",
 			type: "POST",
@@ -308,9 +254,6 @@ $("#userSearchTextbox").keyup((event) => {
 			searchUsers(value);
 		}
 	}, 1000);
-
-	// console.log(textBoxValue);
-	// console.log(searchType);
 });
 
 $("#createChatButton").click(() => {
@@ -361,7 +304,6 @@ function retweetButtonFn(e) {
 		},
 	})
 		.then((resp) => resp.json())
-		// .then((resp) => resp.text())
 		.then((postData) => {
 			button.querySelector("span").textContent =
 				postData.retweetUsers.length || "";
@@ -412,7 +354,6 @@ $(document).on("click", ".followButton", (event) => {
 				followersText = parseInt(followersText);
 				followersLabel.text(followersText + difference);
 			}
-			// button.find("span").text(postData.likes.length || "");
 		},
 	});
 });
@@ -427,13 +368,6 @@ $(document).on("click", ".notification.active", (e) => {
 	const callback = () => (window.location = href);
 	markNotificationsAsOpened(notificationId, callback);
 });
-// const followButton = document.querySelector(".followButton");
-// followButton ? followButtonFn(event) : null;
-// function followButtonFn(event) {
-// 	followButton.addEventListener("click", (event) => {
-// 		console.log("hi");
-// 	});
-// }
 
 const getPostIdFromElement = (element) => {
 	const isRoot = element.classList === "post";
@@ -590,21 +524,6 @@ function timeDifference(current, previous) {
 		return "over " + Math.round(elapsed / msPerYear) + " years ago";
 	}
 }
-
-// $("#postTextarea").keyup((event) => {
-// 	const textbox = $(event.target);
-// 	const value = textbox.val().trim();
-
-// 	const submitButton = $("#submitPostButton");
-
-// 	if (value == "") {
-// 		submitButton.prop("disabled", true);
-// 		console.log(submitButton);
-// 		return;
-// 	}
-
-// 	submitButton.prop("disabled", false);
-// });
 
 function outputPosts(results, container) {
 	container.innerHTML = "";
@@ -836,11 +755,8 @@ async function refreshNotificationsBadge() {
 
 function showNotificationPopup(data) {
 	const html = createNotificationHtml(data);
-	// const element = document.createElement("div");
-	// element.innerHTML = html;
 
 	const element = $(html);
-	// document.getElementById("notificationList").prepend(element);
 	element.hide().prependTo("#notificationList").slideDown("fast");
 
 	setTimeout(() => element.fadeOut(400), 5000);

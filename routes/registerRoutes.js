@@ -35,7 +35,6 @@ router.post("/", async (req, res, next) => {
 		});
 
 		if (user == null) {
-			// No user found
 			const data = req.body;
 			data.password = await bcrypt.hash(password, 10);
 
@@ -44,7 +43,6 @@ router.post("/", async (req, res, next) => {
 				return res.redirect("/");
 			});
 		} else {
-			// User found
 			if (email == user.email && username == user.username) {
 				payload.errorMessage = "Email and username already in use.";
 			} else if (email == user.email) {
