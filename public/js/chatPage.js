@@ -1,7 +1,16 @@
 const sendButton = document.querySelector(".sendMessageButton");
 const inputTextbox = document.querySelector(".inputTextbox");
+let typing = false;
+let lastTypingTime;
 
 $(document).ready(() => {
+	socket.emit("join room", chatId);
+	socket.on("typing", () => {
+		$(".typingDots").show();
+		scrollToBottom(false);
+	});
+	socket.on("stop typing", () => $(".typingDots").hide());
+
 	$.get(`/api/chats/${chatId}`, (data) =>
 		$("#chatName").text(getChatName(data))
 	);
@@ -19,6 +28,7 @@ $(document).ready(() => {
 		const messagesHtml = messages.join("");
 		addMessageHtmlToPage(messagesHtml);
 		scrollToBottom(false);
+		markAllMessageAsRead();
 
 		$(".loadingSpinnerContainer").remove();
 		$(".chatContainer").css("visibility", "visible");
@@ -58,6 +68,8 @@ function messageSubmitted() {
 	if (content !== "") {
 		sendMessage(content);
 		inputTextbox.value = "";
+		socket.emit("stop typing", chatId);
+		typing = false;
 	}
 }
 
@@ -82,6 +94,10 @@ async function sendMessage(content) {
 	}
 	const data = await response.json();
 	addChatMessageHtml(data);
+
+	if (connected) {
+		socket.emit("new message", data);
+	}
 }
 
 function addChatMessageHtml(message) {
@@ -165,10 +181,40 @@ function scrollToBottom(animated) {
 	}
 }
 
+function updateTyping() {
+	if (!connected) return;
+
+	if (!typing) {
+		typing = true;
+		socket.emit("typing", chatId);
+	}
+	lastTypingTime = new Date().getTime();
+	let timerLength = 3000;
+	setTimeout(() => {
+		const timeNow = new Date().getTime();
+		const timeDiff = timeNow - lastTypingTime;
+
+		if (timeDiff >= timerLength && typing) {
+			socket.emit("stop typing", chatId);
+			typing = false;
+		}
+	}, timerLength);
+}
+
 sendButton.addEventListener("click", messageSubmitted);
 inputTextbox.addEventListener("keypress", (event) => {
+	updateTyping();
+
 	if ((event.keyCode == 13 || event.which == 13) && !event.shiftKey) {
 		event.preventDefault();
 		messageSubmitted();
 	}
 });
+
+function markAllMessageAsRead() {
+	$.ajax({
+		url: `/api/chats/${chatId}/messages/markAsRead`,
+		type: "PUT",
+		success: refreshMessagesBadge,
+	});
+}

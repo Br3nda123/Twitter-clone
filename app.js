@@ -11,6 +11,7 @@ const port = 3003;
 const server = app.listen(port, () =>
 	console.log("Server listening on port" + port)
 );
+const io = require("socket.io")(server, { pingTimeout: 60000 });
 
 app.set("view engine", "pug");
 app.set("views", "./views");
@@ -34,12 +35,15 @@ const profileRoute = require("./routes/profileRoutes");
 const uploadRoute = require("./routes/uploadRoutes");
 const searchRoute = require("./routes/searchRoutes");
 const messagesRoute = require("./routes/messagesRoutes");
+const notificationRoute = require("./routes/notificationRoutes");
 // const logoutRoute = require("./routes/logout");
 
 // Api routes
 const postsApiRoute = require("./routes/api/posts");
 const usersApiRoute = require("./routes/api/users");
 const chatsApiRoute = require("./routes/api/chats");
+const messagesApiRoute = require("./routes/api/messages");
+const notificationsApiRoute = require("./routes/api/notifications");
 
 app.use("/login", loginRoute);
 app.use("/register", registerRoute);
@@ -48,11 +52,14 @@ app.use("/profile", middleware.requireLogin, profileRoute);
 app.use("/uploads", uploadRoute);
 app.use("/search", middleware.requireLogin, searchRoute);
 app.use("/messages", middleware.requireLogin, messagesRoute);
+app.use("/notifications", middleware.requireLogin, notificationRoute);
 // app.use("/logout", logoutRoute);
 
 app.use("/api/posts", postsApiRoute);
 app.use("/api/users", usersApiRoute);
 app.use("/api/chats", chatsApiRoute);
+app.use("/api/messages", messagesApiRoute);
+app.use("/api/notifications", notificationsApiRoute);
 
 app.get("/", middleware.requireLogin, (req, res, next) => {
 	const payload = {
@@ -62,4 +69,30 @@ app.get("/", middleware.requireLogin, (req, res, next) => {
 	};
 
 	res.status(200).render("home", payload);
+});
+
+io.on("connection", (client) => {
+	client.on("setup", (userData) => {
+		client.join(userData._id);
+		client.emit("connected");
+	});
+
+	client.on("join room", (room) => client.join(room));
+	client.on("typing", (room) => client.in(room).emit("typing"));
+	client.on("stop typing", (room) => client.in(room).emit("stop typing"));
+	client.on("notification received", (room) =>
+		client.in(room).emit("notification received")
+	);
+
+	client.on("new message", (newMessage) => {
+		const chat = newMessage.chat;
+
+		if (!chat.users) return console.log("Chat.users not defined");
+
+		chat.users.forEach((user) => {
+			if (user._id == newMessage.sender._id) return;
+
+			client.in(user._id).emit("message received", newMessage);
+		});
+	});
 });
