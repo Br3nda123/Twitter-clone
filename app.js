@@ -4,11 +4,11 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
-const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
+// const indexRouter = require("./routes/index");
+// const usersRouter = require("./routes/users");
 const middleware = require("./middleware");
 const bodyParser = require("body-parser");
-const mongoose = require("./database");
+// const mongoose = require("./database");
 const session = require("express-session");
 
 const port = 3003;
@@ -72,7 +72,7 @@ app.use("/api/chats", chatsApiRoute);
 app.use("/api/messages", messagesApiRoute);
 app.use("/api/notifications", notificationsApiRoute);
 
-app.get("/", middleware.requireLogin, (req, res, next) => {
+app.get("/", (req, res, next) => {
 	const payload = {
 		pageTitle: "Home",
 		userLoggedIn: req.session.user,
