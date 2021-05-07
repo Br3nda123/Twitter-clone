@@ -72,7 +72,7 @@ app.use("/api/chats", chatsApiRoute);
 app.use("/api/messages", messagesApiRoute);
 app.use("/api/notifications", notificationsApiRoute);
 
-app.get("/", (req, res, next) => {
+app.get("/", middleware.requireLogin, (req, res, next) => {
 	const payload = {
 		pageTitle: "Home",
 		userLoggedIn: req.session.user,
