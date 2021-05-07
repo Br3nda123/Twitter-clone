@@ -30,11 +30,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(
+// 	session({
+// 		secret: "abc",
+// 		resave: true,
+// 		saveUninitialized: false,
+// 	})
+// );
 app.use(
-	session({
-		secret: "abc",
-		resave: true,
-		saveUninitialized: false,
+	cookieSession({
+		name: "session",
+		keys: ["TWOJKLUCZ"],
+		maxAge: 24 * 60 * 60 * 1000,
 	})
 );
 
