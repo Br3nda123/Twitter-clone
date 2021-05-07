@@ -1,4 +1,5 @@
 const createError = require("http-errors");
+var cookieSession = require("cookie-session");
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
@@ -8,7 +9,7 @@ const logger = require("morgan");
 // const usersRouter = require("./routes/users");
 const middleware = require("./middleware");
 const bodyParser = require("body-parser");
-// const mongoose = require("./database");
+const mongoose = require("./database");
 const session = require("express-session");
 
 const port = 3003;
