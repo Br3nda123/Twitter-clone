@@ -7,9 +7,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 router.get("/", (req, res, next) => {
 	if (req.session) {
-		req.session.destroy(() => {
-			res.redirect("/login");
-		});
+		// console.log(req.session);
+		// req.session.destroy(() => {
+		// });
+		req.session = null;
+		res.redirect("/login");
 	}
 });
 
